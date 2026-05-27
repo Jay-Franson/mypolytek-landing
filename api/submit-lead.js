@@ -55,9 +55,13 @@ async function initSheetsClient() {
 async function appendToGoogleSheet(spreadsheetId, sheetName, row) {
   try {
     const sheets = await initSheetsClient();
-    const range = `'${sheetName}'!A:H`;
+    // Escape single quotes in sheet name and wrap in single quotes
+    const escapedSheetName = sheetName.replace(/'/g, "''");
+    const range = `'${escapedSheetName}'!A:H`;
 
-    await sheets.spreadsheets.values.append({
+    console.log(`Appending to sheet: ${range}`);
+
+    const response = await sheets.spreadsheets.values.append({
       spreadsheetId,
       range,
       valueInputOption: "USER_ENTERED",
@@ -66,10 +70,11 @@ async function appendToGoogleSheet(spreadsheetId, sheetName, row) {
       },
     });
 
-    console.log("Row appended to Google Sheet");
+    console.log("Row appended to Google Sheet:", response.data.updatedRange);
     return true;
   } catch (err) {
     console.error("Google Sheets error:", err.message);
+    console.error("Full error:", err);
     return false;
   }
 }
@@ -120,6 +125,8 @@ async function createHatchContact(fname, lname, phone, email, zip, source) {
       source,
     };
 
+    console.log("Sending to Hatch:", JSON.stringify(contactBody));
+
     const hatchRes = await fetch(`${HATCH_BASE}/contacts`, {
       method: "POST",
       headers: {
@@ -129,13 +136,14 @@ async function createHatchContact(fname, lname, phone, email, zip, source) {
       body: JSON.stringify(contactBody),
     });
 
+    const responseText = await hatchRes.text();
+
     if (!hatchRes.ok) {
-      const errText = await hatchRes.text();
-      console.error("Hatch contact creation failed:", hatchRes.status, errText);
+      console.error("Hatch contact creation failed:", hatchRes.status, responseText);
       return false;
     }
 
-    console.log("Hatch contact created successfully");
+    console.log("Hatch contact created successfully:", responseText);
     return true;
   } catch (err) {
     console.error("Hatch error:", err.message);
