@@ -44,7 +44,7 @@
   "integrations": {
     "googleSheets": {
       "spreadsheetId": "1SVcrZNxtt6NgCpMDaTfWjNouH8FYgseoQ_A-OU72Jkg",
-      "sheetName": "MyPolytek"
+      "sheetName": "Polytek/Penntek"
     },
     "email": {
       "recipient": "jay@powrful.com"
