@@ -1,13 +1,18 @@
 {
-  "name": "bam-coatings-landing",
+  "name": "mypolytek-landing",
   "version": "1.0.0",
-  "description": "BAM Coatings landing page with lead capture",
+  "description": "MyPolytek landing page with lead capture and CRM integrations",
   "private": true,
   "scripts": {
     "build": "echo 'Static site with API routes'",
     "dev": "vercel dev"
   },
+  "dependencies": {
+    "nodemailer": "^6.9.7",
+    "googleapis": "^118.0.0",
+    "@google-cloud/sheets": "^2.1.0"
+  },
   "keywords": ["landing-page", "concrete-coatings"],
-  "author": "BAM Coatings",
+  "author": "MyPolytek",
   "license": "MIT"
 }
