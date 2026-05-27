@@ -9,8 +9,7 @@
   },
   "dependencies": {
     "nodemailer": "^6.9.7",
-    "googleapis": "^118.0.0",
-    "@google-cloud/sheets": "^2.1.0"
+    "googleapis": "^118.0.0"
   },
   "keywords": ["landing-page", "concrete-coatings"],
   "author": "MyPolytek",

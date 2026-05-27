@@ -1,7 +1,7 @@
 {
   "dealer": {
-    "name": "MyPolytek",
-    "phone": "YOUR_PHONE_HERE",
+    "name": "Polytek of Rochester",
+    "phone": "(507) 764-0389",
     "website": "https://mypolytek.com"
   },
   "branding": {
@@ -12,34 +12,34 @@
       "navyMid": "#0f2040",
       "navyLight": "#152a52"
     },
-    "logo": "MyPolytek"
+    "logo": "Polytek of Rochester"
   },
   "hero": {
-    "regions": ["YOUR_REGIONS_HERE"],
-    "headline": "Transform Your Concrete",
-    "headlineHighlight": "With Premium Coatings",
-    "subheading": "Professional polyurea and epoxy solutions for your home",
-    "cta": "Get Your Free Quote →"
+    "regions": ["Rochester", "Owatonna", "Austin", "Albert Lea", "Mason City", "La Crosse", "Eau Claire"],
+    "headline": "One Day Surface Coatings",
+    "headlineHighlight": "That Last a Lifetime",
+    "subheading": "Advanced polyurea materials installed by factory-trained technicians. 4x stronger than epoxy. One-day installation.",
+    "cta": "Get Up to $500 Off →"
   },
   "promotion": {
     "headline": "Limited Time Offer",
-    "description": "Special Pricing Available",
+    "description": "Save up to $500 on your next floor coating",
     "deadline": "Contact for details"
   },
   "services": [
-    { "name": "Garage", "icon": "🏠" },
-    { "name": "Patio", "icon": "☀️" },
-    { "name": "Basement", "icon": "🏚️" },
-    { "name": "Other", "icon": "📐" }
+    { "name": "Garage Floors", "icon": "🏠" },
+    { "name": "Basements", "icon": "🏚️" },
+    { "name": "Patios & Outdoor", "icon": "☀️" },
+    { "name": "Commercial", "icon": "🏢" }
   ],
   "socialProof": {
-    "rating": "4.9/5",
-    "reviews": 150,
-    "customers": "500+"
+    "rating": "5.0/5",
+    "reviews": 100,
+    "customers": "1000+"
   },
   "comparison": {
-    "competitor": "Traditional Coating",
-    "ourProduct": "Premium Polyurea"
+    "competitor": "Traditional Epoxy",
+    "ourProduct": "Premium Polyurea (4x Stronger)"
   },
   "integrations": {
     "googleSheets": {
@@ -54,5 +54,22 @@
     }
   },
   "gallery": [],
-  "testimonials": []
+  "testimonials": [
+    {
+      "text": "Travis and Justin are the finest young men you could ever have working on your project! My floor looks like a million bucks. And we just LOVE how the front step turned out, too. It all looks so beautiful… we don't want to drive on it!",
+      "author": "D. Andrischo"
+    },
+    {
+      "text": "Super professional workers and work was done in a timely manner!!! Looks amazing",
+      "author": "Mark Moehle"
+    },
+    {
+      "text": "Awesome work. We have more projects lined up with polytek. Thanks!",
+      "author": "Laredoggg"
+    },
+    {
+      "text": "We had our large front & two back porches including steps and front walkway repurposed. Everything looks fantastic!",
+      "author": "Sandy Pearson"
+    }
+  ]
 }
