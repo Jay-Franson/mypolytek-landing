@@ -1,0 +1,58 @@
+{
+  "dealer": {
+    "name": "MyPolytek",
+    "phone": "YOUR_PHONE_HERE",
+    "website": "https://mypolytek.com"
+  },
+  "branding": {
+    "colors": {
+      "primary": "#0066cc",
+      "primaryHover": "#0052a3",
+      "navy": "#0a1628",
+      "navyMid": "#0f2040",
+      "navyLight": "#152a52"
+    },
+    "logo": "MyPolytek"
+  },
+  "hero": {
+    "regions": ["YOUR_REGIONS_HERE"],
+    "headline": "Transform Your Concrete",
+    "headlineHighlight": "With Premium Coatings",
+    "subheading": "Professional polyurea and epoxy solutions for your home",
+    "cta": "Get Your Free Quote →"
+  },
+  "promotion": {
+    "headline": "Limited Time Offer",
+    "description": "Special Pricing Available",
+    "deadline": "Contact for details"
+  },
+  "services": [
+    { "name": "Garage", "icon": "🏠" },
+    { "name": "Patio", "icon": "☀️" },
+    { "name": "Basement", "icon": "🏚️" },
+    { "name": "Other", "icon": "📐" }
+  ],
+  "socialProof": {
+    "rating": "4.9/5",
+    "reviews": 150,
+    "customers": "500+"
+  },
+  "comparison": {
+    "competitor": "Traditional Coating",
+    "ourProduct": "Premium Polyurea"
+  },
+  "integrations": {
+    "googleSheets": {
+      "spreadsheetId": "1SVcrZNxtt6NgCpMDaTfWjNouH8FYgseoQ_A-OU72Jkg",
+      "sheetName": "MyPolytek"
+    },
+    "email": {
+      "recipient": "jay@powrful.com"
+    },
+    "hatch": {
+      "source": "custom:landing-page-polytek"
+    }
+  },
+  "gallery": [],
+  "testimonials": []
+}

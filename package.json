@@ -1,0 +1,13 @@
+{
+  "name": "bam-coatings-landing",
+  "version": "1.0.0",
+  "description": "BAM Coatings landing page with lead capture",
+  "private": true,
+  "scripts": {
+    "build": "echo 'Static site with API routes'",
+    "dev": "vercel dev"
+  },
+  "keywords": ["landing-page", "concrete-coatings"],
+  "author": "BAM Coatings",
+  "license": "MIT"
+}
