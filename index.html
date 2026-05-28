@@ -1124,7 +1124,7 @@
     root.style.setProperty('--navy-light', branding.colors.navyLight);
 
     // Topbar
-    document.getElementById('topbar').innerHTML = `⚡ ${promotion.headline} — ${promotion.description} Ends Soon &nbsp;·&nbsp; Call <a href="tel:${dealer.phone.replace(/\D/g, '')}" style="color:var(--orange);text-decoration:none;font-weight:800;">${dealer.phone}</a>`;
+    document.getElementById('topbar').innerHTML = `⚡ ${promotion.headline} — ${promotion.description} &nbsp;·&nbsp; Call <a href="tel:${dealer.phone.replace(/\D/g, '')}" style="color:var(--orange);text-decoration:none;font-weight:800;">${dealer.phone}</a>`;
 
     // Hero regions
     document.querySelector('.hero-eyebrow').textContent = hero.regions.join(' · ');
