@@ -47,3 +47,4 @@ Test the form - leads will be:
 - Added to Google Sheet
 - Sent via email
 - Created in Hatch CRM
+Gallery images deployed
