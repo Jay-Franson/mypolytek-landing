@@ -53,7 +53,16 @@
       "source": "custom:landing-page-polytek"
     }
   },
-  "gallery": [],
+  "gallery": [
+    { "src": "/images/gallery/polytekgarage.jpg", "alt": "Polytek garage floor installation" },
+    { "src": "/images/gallery/polytekgarageseamupclose.jpg", "alt": "Close-up of polyurea seam" },
+    { "src": "/images/gallery/upclosegaragefloorpolytek.jpg", "alt": "Detailed view of garage floor coating" },
+    { "src": "/images/gallery/shopfloorpolytek.jpg", "alt": "Commercial shop floor coating" },
+    { "src": "/images/gallery/installerimagepolytekgarage.jpg", "alt": "Polytek installer at work" },
+    { "src": "/images/gallery/handgrinderinstallerpolytekgarage.jpg", "alt": "Installation process with grinder" },
+    { "src": "/images/gallery/grinderimagepolytekgarage.jpg", "alt": "Grinding preparation for coating" },
+    { "src": "/images/gallery/polytektrailerindriveway.jpg", "alt": "Polytek job site with trailer" }
+  ],
   "testimonials": [
     {
       "text": "Travis and Justin are the finest young men you could ever have working on your project! My floor looks like a million bucks. And we just LOVE how the front step turned out, too. It all looks so beautiful… we don't want to drive on it!",
