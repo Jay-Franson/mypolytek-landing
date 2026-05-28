@@ -16,6 +16,7 @@
 const nodemailer = require("nodemailer");
 const { google } = require("googleapis");
 const HATCH_BASE = "https://api.usehatchapp.com/v1";
+const TURNSTILE_VERIFY_URL = "https://challenges.cloudflare.com/turnstile/v0/siteverify";
 
 // ─────────────────────────────────────────────────────────
 // Server-owned dealer config (NEVER trust from request body)
@@ -170,6 +171,43 @@ function isValidZip(zip) {
   return /^\d{5}(-\d{4})?$/.test(String(zip).trim());
 }
 
+// ─────────────────────────────────────────────────────────
+// Cloudflare Turnstile — server-side token verification
+// Returns { ok: true } on success, { ok: false, reason } otherwise.
+// If TURNSTILE_SECRET_KEY is not set, verification is skipped with a
+// warning (allows local development without the secret).
+// ─────────────────────────────────────────────────────────
+async function verifyTurnstile(token, remoteIp) {
+  if (!process.env.TURNSTILE_SECRET_KEY) {
+    console.warn("TURNSTILE_SECRET_KEY not set — skipping bot verification");
+    return { ok: true, skipped: true };
+  }
+  if (!token) {
+    return { ok: false, reason: "missing-token" };
+  }
+  try {
+    const params = new URLSearchParams();
+    params.append("secret", process.env.TURNSTILE_SECRET_KEY);
+    params.append("response", token);
+    if (remoteIp) params.append("remoteip", remoteIp);
+
+    const r = await fetch(TURNSTILE_VERIFY_URL, {
+      method: "POST",
+      headers: { "Content-Type": "application/x-www-form-urlencoded" },
+      body: params.toString(),
+    });
+    const result = await r.json();
+    if (result.success) {
+      return { ok: true };
+    }
+    console.error("Turnstile failed:", result["error-codes"]);
+    return { ok: false, reason: "verification-failed", codes: result["error-codes"] };
+  } catch (err) {
+    console.error("Turnstile verify error:", err.message);
+    return { ok: false, reason: "verify-error" };
+  }
+}
+
 export default async function handler(req, res) {
   // Only allow POST
   if (req.method !== "POST") {
@@ -177,7 +215,7 @@ export default async function handler(req, res) {
   }
 
   const data = req.body || {};
-  const { fname, lname, phone, email, zip, step1, step2, step3, website } = data;
+  const { fname, lname, phone, email, zip, step1, step2, step3, website, turnstileToken } = data;
 
   // ─────────────────────────────────────────────────────────
   // SPAM PROTECTION — Honeypot
@@ -188,6 +226,21 @@ export default async function handler(req, res) {
     console.log("Honeypot triggered — silent reject");
     // Return success to not tip off bots
     return res.status(200).json({ success: true });
+  }
+
+  // ─────────────────────────────────────────────────────────
+  // BOT PROTECTION — Cloudflare Turnstile
+  // ─────────────────────────────────────────────────────────
+  const remoteIp =
+    req.headers["x-forwarded-for"]?.split(",")[0]?.trim() ||
+    req.headers["x-real-ip"] ||
+    "";
+  const turnstile = await verifyTurnstile(turnstileToken, remoteIp);
+  if (!turnstile.ok) {
+    return res.status(403).json({
+      success: false,
+      error: "Bot verification failed. Please refresh the page and try again.",
+    });
   }
 
   // ─────────────────────────────────────────────────────────

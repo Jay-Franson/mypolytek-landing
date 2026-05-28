@@ -7,6 +7,8 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
+<!-- Cloudflare Turnstile — bot protection -->
+<script src="https://challenges.cloudflare.com/turnstile/v0/api.js" async defer></script>
 <style>
   *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
@@ -829,6 +831,8 @@
           <label for="website">Website (leave blank)</label>
           <input type="text" id="website" name="website" tabindex="-1" autocomplete="off">
         </div>
+        <!-- Cloudflare Turnstile — bot verification (invisible 99% of the time) -->
+        <div class="cf-turnstile" data-sitekey="0x4AAAAAADXkBWhCBQ5dgfLb" data-theme="light" data-size="flexible" style="margin: 10px 0;"></div>
         <div class="form-nav" style="flex-direction:column;align-items:stretch;">
           <button class="btn-back" style="width:fit-content;" onclick="prevStep(3)">← Back</button>
           <button class="btn-submit" id="btn-submit" onclick="submitForm()">Claim My Savings →</button>
@@ -1060,6 +1064,9 @@
     var email = document.getElementById('email').value.trim();
     var zip   = document.getElementById('zip').value.trim();
     var website = document.getElementById('website') ? document.getElementById('website').value : '';
+    // Cloudflare Turnstile injects this hidden field after passing verification
+    var turnstileEl = document.querySelector('[name="cf-turnstile-response"]');
+    var turnstileToken = turnstileEl ? turnstileEl.value : '';
 
     var errorEl = document.getElementById('form-error');
     var btn = document.getElementById('btn-submit');
@@ -1096,6 +1103,7 @@
           step2: formData.step2,
           step3: formData.step3,
           website: website, // honeypot field — bots fill this, real users don't
+          turnstileToken: turnstileToken, // Cloudflare bot verification token
         }),
       });
 
@@ -1115,6 +1123,8 @@
         btn.textContent = originalBtnText;
         btn.style.opacity = '';
         btn.style.cursor = '';
+        // Reset Turnstile — tokens are single-use
+        if (window.turnstile) { try { window.turnstile.reset(); } catch (e) {} }
       }
     } catch (err) {
       console.error('Lead submission error:', err);
@@ -1126,6 +1136,8 @@
       btn.textContent = originalBtnText;
       btn.style.opacity = '';
       btn.style.cursor = '';
+      // Reset Turnstile — tokens are single-use
+      if (window.turnstile) { try { window.turnstile.reset(); } catch (e) {} }
     }
   }
 
