@@ -710,7 +710,7 @@
   <div class="form-card">
     <div class="form-header">
       <h2>Get Your Free Quote</h2>
-      <p>Takes 60 seconds — <span>50% off installation + 0% interest for 24 months locks in when you submit</span></p>
+      <p>Takes 60 seconds — <span>Up to $750 off + Floors start at $79/mo locks in when you submit</span></p>
     </div>
 
     <!-- Progress Bar -->
@@ -837,8 +837,8 @@
     <div class="thank-you" id="thank-you">
       <div class="ty-icon">🎉</div>
       <h3>You're All Set!</h3>
-      <p>We'll call you within <strong>15 minutes</strong> to confirm your 50% off installation + 0% interest for 24 months. Watch for a call from <strong>844-422-6669</strong>.</p>
-      <p>Can't wait? Call us now: <a href="tel:8444226669">844-422-6669</a></p>
+      <p>We'll call you within <strong>15 minutes</strong> to confirm your savings. Watch for a call from <strong>507-252-8112</strong>.</p>
+      <p>Can't wait? Call us now: <a href="tel:5072528112">507-252-8112</a></p>
     </div>
 
   </div><!-- /form-card -->
@@ -943,22 +943,22 @@
 <section id="testimonials" class="section section-alt">
   <div class="container">
     <div class="section-label">What Customers Say</div>
-    <h2 class="section-title">Homeowners Love BAM Coatings</h2>
+    <h2 class="section-title" id="testimonial-title">Homeowners Love Polytek of Rochester</h2>
     <div class="testimonial-grid">
       <div class="testimonial-card">
         <div class="t-stars">⭐⭐⭐⭐⭐</div>
-        <p class="t-quote">"Chris and Noah were great! Arrived early and explained the whole process. Finished in less than one day. Very happy with the results."</p>
-        <div class="t-author">— Greg B., Verified Customer</div>
+        <p class="t-quote">"Love this floor! Our old floor was very cracked and deeply pitted. That made it difficult to keep clean. Couldn't be easier now! The install crew was prompt and professional."</p>
+        <div class="t-author">— Verified Customer</div>
       </div>
       <div class="testimonial-card">
         <div class="t-stars">⭐⭐⭐⭐⭐</div>
-        <p class="t-quote">"BAM Coatings delivered in every way. Materials, expertise, great price, and attention to detail exceeded our expectations. Our garage looks amazing."</p>
-        <div class="t-author">— Josh G., Verified Customer</div>
+        <p class="t-quote">"We were very impressed with the professionalism of the installers. Polytek is a great concept and we look forward to many years of a beautiful garage floor."</p>
+        <div class="t-author">— Verified Customer</div>
       </div>
       <div class="testimonial-card">
         <div class="t-stars">⭐⭐⭐⭐⭐</div>
-        <p class="t-quote">"We are so happy with the results. The entire process was seamless and everyone was friendly and respectful. Highly recommend the BAM team!"</p>
-        <div class="t-author">— Lindsey R., Verified Customer</div>
+        <p class="t-quote">"Polytek looks to be a superior flooring product and the sales and support from a local company has been fantastic. Highly recommend."</p>
+        <div class="t-author">— Verified Customer</div>
       </div>
     </div>
   </div>
@@ -1169,17 +1169,18 @@
     });
 
     // Testimonials
-    const testimonialGrid = document.querySelector('.testimonial-grid');
-    testimonialGrid.innerHTML = '';
-    testimonials.forEach((t) => {
-      const stars = '⭐'.repeat(t.stars);
-      const card = document.createElement('div');
-      card.className = 'testimonial-card';
-      card.innerHTML = `
-        <div class="t-stars">${stars}</div>
-        <p class="t-quote">"${t.quote}"</p>
-        <div class="t-author">— ${t.author}${t.verified ? ', Verified Customer' : ''}</div>
-      `;
+    if (testimonials && testimonials.length > 0) {
+      const testimonialGrid = document.querySelector('.testimonial-grid');
+      testimonialGrid.innerHTML = '';
+      testimonials.forEach((t) => {
+        const stars = '⭐'.repeat(t.stars || 5);
+        const card = document.createElement('div');
+        card.className = 'testimonial-card';
+        card.innerHTML = `
+          <div class="t-stars">${stars}</div>
+          <p class="t-quote">"${t.text || t.quote || ''}"</p>
+          <div class="t-author">— ${t.author || 'Verified Customer'}</div>
+        `;
       testimonialGrid.appendChild(card);
     });
 
