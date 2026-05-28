@@ -1189,8 +1189,9 @@
           <p class="t-quote">"${t.text || t.quote || ''}"</p>
           <div class="t-author">— ${t.author || 'Verified Customer'}</div>
         `;
-      testimonialGrid.appendChild(card);
-    });
+        testimonialGrid.appendChild(card);
+      });
+    }
 
     // Urgency CTA
     document.querySelector('#urgency h2').innerHTML = `${promotion.headline} Is The Cutoff —<br>Don't Miss <span>${promotion.description}</span>`;
