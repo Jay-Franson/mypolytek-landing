@@ -140,14 +140,17 @@ async function createHatchContact(fname, lname, phone, email, zip, source) {
     });
 
     if (!hatchRes.ok) {
-      const responseText = await hatchRes.text();
-      console.error("Hatch error:", hatchRes.status, responseText);
+      // Don't log the raw response body — Hatch may echo back the
+      // contact data (name/phone/email/zip) we just sent.
+      // Status code alone is enough to investigate.
+      console.error("Hatch error: status", hatchRes.status);
       return false;
     }
 
     console.log("Hatch: contact created");
     return true;
   } catch (err) {
+    // err.message from fetch failures (network, DNS) does not contain PII.
     console.error("Hatch error:", err.message);
     return false;
   }

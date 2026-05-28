@@ -1,17 +1,22 @@
 {
   "name": "mypolytek-landing",
   "version": "1.0.0",
-  "description": "MyPolytek landing page with lead capture and CRM integrations",
+  "description": "Polytek of Rochester landing page with lead capture and CRM integrations",
   "private": true,
   "scripts": {
-    "build": "echo 'Static site with API routes'",
+    "build": "npm run validate",
+    "validate": "node --check api/submit-lead.js && node -e \"JSON.parse(require('fs').readFileSync('config.json','utf8'))\" && echo 'Validation passed: api/submit-lead.js and config.json are well-formed.'",
     "dev": "vercel dev"
   },
   "dependencies": {
-    "nodemailer": "^6.9.7",
-    "googleapis": "^118.0.0"
+    "googleapis": "^172.0.0",
+    "nodemailer": "^8.0.9"
   },
-  "keywords": ["landing-page", "concrete-coatings"],
-  "author": "MyPolytek",
+  "keywords": [
+    "landing-page",
+    "concrete-coatings",
+    "polytek"
+  ],
+  "author": "Polytek of Rochester",
   "license": "MIT"
 }
