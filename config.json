@@ -7,8 +7,8 @@
   },
   "branding": {
     "colors": {
-      "primary": "#0066cc",
-      "primaryHover": "#0052a3",
+      "primary": "#ff6b00",
+      "primaryHover": "#e05e00",
       "navy": "#0a1628",
       "navyMid": "#0f2040",
       "navyLight": "#152a52"
