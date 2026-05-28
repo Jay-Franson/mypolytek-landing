@@ -120,7 +120,7 @@ This email was sent automatically from your landing page form.
   }
 }
 
-async function createHatchContact({ fname, lname, phone, email, zip, step1, step2, step3, source }) {
+async function createHatchContact({ fname, lname, phone, email, zip, step1, step2, step3, source, landingPage }) {
   try {
     // Hatch's POST /v1/contacts schema:
     //   Required: externalId, phoneNumber, source
@@ -142,7 +142,7 @@ async function createHatchContact({ fname, lname, phone, email, zip, step1, step
         projectType: step1 || "",
         timeline: step2 || "",
         homeowner: step3 || "",
-        landingPage: "powrfulwebsite.com",
+        landingPage: landingPage || "unknown",
         submittedAt: new Date().toISOString(),
       },
     };
@@ -251,6 +251,16 @@ export default async function handler(req, res) {
     req.headers["x-forwarded-for"]?.split(",")[0]?.trim() ||
     req.headers["x-real-ip"] ||
     "";
+
+  // Capture the actual hostname the form was submitted from so we can
+  // attribute leads to the right domain in Hatch (powrfulwebsite.com,
+  // quote.mypolytek.com, vercel preview URLs, etc).
+  const landingPageHost = (
+    req.headers["x-forwarded-host"] ||
+    req.headers.host ||
+    ""
+  ).toString().split(":")[0].toLowerCase();
+
   const turnstile = await verifyTurnstile(turnstileToken, remoteIp);
   if (!turnstile.ok) {
     return res.status(403).json({
@@ -335,6 +345,7 @@ export default async function handler(req, res) {
       step2,
       step3,
       source: DEALER_CONFIG.hatch.source,
+      landingPage: landingPageHost,
     });
   } else {
     console.error("HATCH_API_KEY not set");
