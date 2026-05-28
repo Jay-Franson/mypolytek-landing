@@ -1103,7 +1103,9 @@
     try {
       const response = await fetch('/config.json');
       const config = await response.json();
+      console.log('Config loaded:', config);
       applyConfig(config);
+      console.log('Config applied successfully');
     } catch (err) {
       console.error('Failed to load config.json:', err);
     }
@@ -1124,10 +1126,16 @@
     root.style.setProperty('--navy-light', branding.colors.navyLight);
 
     // Topbar
-    document.getElementById('topbar').innerHTML = `⚡ ${promotion.headline} — ${promotion.description} &nbsp;·&nbsp; Call <a href="tel:${dealer.phone.replace(/\D/g, '')}" style="color:var(--orange);text-decoration:none;font-weight:800;">${dealer.phone}</a>`;
+    const topbar = document.getElementById('topbar');
+    if (topbar) {
+      topbar.innerHTML = `⚡ ${promotion.headline} — ${promotion.description} &nbsp;·&nbsp; Call <a href="tel:${dealer.phone.replace(/\D/g, '')}" style="color:var(--orange);text-decoration:none;font-weight:800;">${dealer.phone}</a>`;
+    }
 
     // Hero regions
-    document.querySelector('.hero-eyebrow').textContent = hero.regions.join(' · ');
+    const heroEyebrow = document.querySelector('.hero-eyebrow');
+    if (heroEyebrow) {
+      heroEyebrow.textContent = hero.regions.join(' · ');
+    }
 
     // Hero headline
     document.querySelector('#hero h1').innerHTML = `${hero.headline}<br><span>${hero.headlineHighlight}</span>`;
