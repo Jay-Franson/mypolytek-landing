@@ -967,9 +967,9 @@
 <!-- URGENCY CTA -->
 <section id="urgency">
   <div class="urgency-inner">
-    <div class="urgency-badge">⏰ <span id="promo-headline">Limited Time Offer</span></div>
-    <h2>Don't Miss Out —<br><span id="promo-description">Save up to $500 on your next floor coating</span></h2>
-    <p id="promo-deadline">Contact for details</p>
+    <div class="urgency-badge">⏰ Limited Time Offer</div>
+    <h2>Spots Are Limited — Don't Wait</h2>
+    <p id="promo-message">Only a few installation slots available this month. Lock in your <span id="promo-offer">Up to $750 off + Floors start at $79/mo</span> before they're gone.</p>
     <a href="#quote" class="btn-primary">Get Your Quote →</a>
     <p class="phone-cta">Or Call Us: <a id="footer-phone-link" href="tel:"></a></p>
   </div>
@@ -1193,8 +1193,11 @@
       });
     }
 
-    // Urgency CTA
-    document.querySelector('#urgency h2').innerHTML = `${promotion.headline} Is The Cutoff —<br>Don't Miss <span>${promotion.description}</span>`;
+    // Urgency CTA - Update promo offer text
+    const promoOffer = document.querySelector('#promo-offer');
+    if (promoOffer) {
+      promoOffer.textContent = promotion.description;
+    }
     document.querySelector('#urgency .btn-primary').textContent = hero.cta;
 
     // Footer
