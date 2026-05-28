@@ -1,26 +1,37 @@
 /**
  * Vercel API Route: submit-lead
  *
- * Generic lead submission handler for all dealer landing pages.
- * Integrates with: Google Sheets, Gmail Email, Hatch CRM, GoHighLevel, BuilderPrime
+ * Lead submission handler for Polytek of Rochester landing page.
+ * Integrates with: Google Sheets, Gmail Email, Hatch CRM
  *
  * Required environment variables (set in Vercel → Settings → Environment Variables):
  *   GOOGLE_SERVICE_ACCOUNT_JSON - Google Service Account credentials (JSON string)
  *   GMAIL_APP_PASSWORD          - Gmail app password for sending emails
  *   HATCH_API_KEY               - Hatch API key
- *   GHL_API_KEY                 - GoHighLevel API key (optional)
- *   BUILDERPRIME_API_KEY        - BuilderPrime API key (optional)
  *
- * Dealer-specific config (from config.json):
- *   integrations.googleSheets.spreadsheetId - Google Sheet to write leads to
- *   integrations.googleSheets.sheetName     - Tab name (e.g., "BAM", "MyPolytek")
- *   integrations.email.recipient            - Email address for notifications
- *   integrations.hatch.source               - Hatch source value
+ * SECURITY NOTE: Integration destinations (sheet IDs, email recipients, Hatch source)
+ * are server-owned constants below — NEVER trust these from the request body.
  */
 
 const nodemailer = require("nodemailer");
 const { google } = require("googleapis");
 const HATCH_BASE = "https://api.usehatchapp.com/v1";
+
+// ─────────────────────────────────────────────────────────
+// Server-owned dealer config (NEVER trust from request body)
+// ─────────────────────────────────────────────────────────
+const DEALER_CONFIG = {
+  googleSheets: {
+    spreadsheetId: "1SVcrZNxtt6NgCpMDaTfWjNouH8FYgseoQ_A-OU72Jkg",
+    sheetName: "Polytek LP",
+  },
+  email: {
+    recipient: "jay@powrful.com",
+  },
+  hatch: {
+    source: "custom:landing-page-polytek",
+  },
+};
 
 let gmailTransporter = null;
 let sheetsClient = null;
@@ -55,26 +66,20 @@ async function initSheetsClient() {
 async function appendToGoogleSheet(spreadsheetId, sheetName, row) {
   try {
     const sheets = await initSheetsClient();
-    // Escape single quotes in sheet name and wrap in single quotes
     const escapedSheetName = sheetName.replace(/'/g, "''");
-    const range = `'${escapedSheetName}'!A:H`;
-
-    console.log(`Appending to sheet: ${range}`);
+    const range = `'${escapedSheetName}'!A:I`;
 
     const response = await sheets.spreadsheets.values.append({
       spreadsheetId,
       range,
       valueInputOption: "USER_ENTERED",
-      requestBody: {
-        values: [row],
-      },
+      requestBody: { values: [row] },
     });
 
-    console.log("Row appended to Google Sheet:", response.data.updatedRange);
+    console.log("Sheets: lead saved", response.data.updatedRange);
     return true;
   } catch (err) {
-    console.error("Google Sheets error:", err.message);
-    console.error("Full error:", err);
+    console.error("Sheets error:", err.message);
     return false;
   }
 }
@@ -106,7 +111,7 @@ This email was sent automatically from your landing page form.
       text: emailBody,
     });
 
-    console.log(`Email sent to ${recipient}`);
+    console.log("Email: notification sent");
     return true;
   } catch (err) {
     console.error("Email error:", err.message);
@@ -125,8 +130,6 @@ async function createHatchContact(fname, lname, phone, email, zip, source) {
       source,
     };
 
-    console.log("Sending to Hatch:", JSON.stringify(contactBody));
-
     const hatchRes = await fetch(`${HATCH_BASE}/contacts`, {
       method: "POST",
       headers: {
@@ -136,14 +139,13 @@ async function createHatchContact(fname, lname, phone, email, zip, source) {
       body: JSON.stringify(contactBody),
     });
 
-    const responseText = await hatchRes.text();
-
     if (!hatchRes.ok) {
-      console.error("Hatch contact creation failed:", hatchRes.status, responseText);
+      const responseText = await hatchRes.text();
+      console.error("Hatch error:", hatchRes.status, responseText);
       return false;
     }
 
-    console.log("Hatch contact created successfully:", responseText);
+    console.log("Hatch: contact created");
     return true;
   } catch (err) {
     console.error("Hatch error:", err.message);
@@ -151,57 +153,136 @@ async function createHatchContact(fname, lname, phone, email, zip, source) {
   }
 }
 
+// Basic email + phone format validation
+function isValidEmail(email) {
+  return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
+}
+
+function isValidPhone(phone) {
+  const digits = String(phone).replace(/\D/g, "");
+  return digits.length >= 10 && digits.length <= 15;
+}
+
+function isValidZip(zip) {
+  return /^\d{5}(-\d{4})?$/.test(String(zip).trim());
+}
+
 export default async function handler(req, res) {
   // Only allow POST
   if (req.method !== "POST") {
-    return res.status(405).json({ error: "Method Not Allowed" });
+    return res.status(405).json({ success: false, error: "Method Not Allowed" });
   }
 
-  const data = req.body;
-  const { fname, lname, phone, email, zip, step1, step2, step3, integrations } = data;
+  const data = req.body || {};
+  const { fname, lname, phone, email, zip, step1, step2, step3, website } = data;
 
-  // Basic validation
+  // ─────────────────────────────────────────────────────────
+  // SPAM PROTECTION — Honeypot
+  // Bots fill all fields including the hidden "website" field.
+  // Real users can't see it, so it should always be empty.
+  // ─────────────────────────────────────────────────────────
+  if (website && String(website).trim() !== "") {
+    console.log("Honeypot triggered — silent reject");
+    // Return success to not tip off bots
+    return res.status(200).json({ success: true });
+  }
+
+  // ─────────────────────────────────────────────────────────
+  // Validation
+  // ─────────────────────────────────────────────────────────
   if (!fname || !phone || !email || !zip) {
-    return res.status(400).json({ error: "Missing required fields: fname, phone, email, zip" });
+    return res.status(400).json({
+      success: false,
+      error: "Missing required fields: fname, phone, email, zip",
+    });
   }
 
-  const errors = [];
-  const row = [new Date().toISOString(), fname, lname || "", phone, email, zip, step1 || "", step2 || "", step3 || ""];
+  if (!isValidEmail(email)) {
+    return res.status(400).json({ success: false, error: "Invalid email format" });
+  }
+
+  if (!isValidPhone(phone)) {
+    return res.status(400).json({ success: false, error: "Invalid phone format" });
+  }
+
+  if (!isValidZip(zip)) {
+    return res.status(400).json({ success: false, error: "Invalid zip format" });
+  }
+
+  const row = [
+    new Date().toISOString(),
+    fname,
+    lname || "",
+    phone,
+    email,
+    zip,
+    step1 || "",
+    step2 || "",
+    step3 || "",
+  ];
 
   // ─────────────────────────────────────────────────────────
-  // 1. Google Sheets — Append Lead
+  // 1. Google Sheets — Append Lead (CRITICAL — this is our system of record)
   // ─────────────────────────────────────────────────────────
-  if (integrations?.googleSheets?.spreadsheetId && process.env.GOOGLE_SERVICE_ACCOUNT_JSON) {
-    const sheetName = integrations.googleSheets.sheetName || "Leads";
-    const success = await appendToGoogleSheet(integrations.googleSheets.spreadsheetId, sheetName, row);
-    if (!success) errors.push("Google Sheets failed");
+  let sheetsOk = false;
+  if (process.env.GOOGLE_SERVICE_ACCOUNT_JSON) {
+    sheetsOk = await appendToGoogleSheet(
+      DEALER_CONFIG.googleSheets.spreadsheetId,
+      DEALER_CONFIG.googleSheets.sheetName,
+      row
+    );
   } else {
-    console.warn("Google Sheets not configured");
+    console.error("GOOGLE_SERVICE_ACCOUNT_JSON not set");
   }
 
   // ─────────────────────────────────────────────────────────
-  // 2. Gmail — Send Email Notification
+  // 2. Gmail — Send Email Notification (non-critical)
   // ─────────────────────────────────────────────────────────
-  if (integrations?.email?.recipient && process.env.GMAIL_APP_PASSWORD) {
-    const success = await sendEmailNotification(integrations.email.recipient, fname, lname, phone, email, zip, step1, step2, step3);
-    if (!success) errors.push("Email notification failed");
+  let emailOk = false;
+  if (process.env.GMAIL_APP_PASSWORD) {
+    emailOk = await sendEmailNotification(
+      DEALER_CONFIG.email.recipient,
+      fname, lname, phone, email, zip, step1, step2, step3
+    );
   } else {
-    console.warn("Email not configured");
+    console.error("GMAIL_APP_PASSWORD not set");
   }
 
   // ─────────────────────────────────────────────────────────
-  // 3. Hatch CRM — Create Contact
+  // 3. Hatch CRM — Create Contact (non-critical)
   // ─────────────────────────────────────────────────────────
-  if (integrations?.hatch?.source && process.env.HATCH_API_KEY) {
-    const success = await createHatchContact(fname, lname, phone, email, zip, integrations.hatch.source);
-    if (!success) errors.push("Hatch integration failed");
+  let hatchOk = false;
+  if (process.env.HATCH_API_KEY) {
+    hatchOk = await createHatchContact(
+      fname, lname, phone, email, zip,
+      DEALER_CONFIG.hatch.source
+    );
   } else {
-    console.warn("Hatch not configured");
+    console.error("HATCH_API_KEY not set");
   }
 
-  // Always return success to user (backend errors logged separately)
+  // ─────────────────────────────────────────────────────────
+  // Honest response — only success if Sheets OR Email succeeded
+  // (so we know the lead is captured somewhere)
+  // ─────────────────────────────────────────────────────────
+  const leadCaptured = sheetsOk || emailOk;
+
+  if (!leadCaptured) {
+    console.error("CRITICAL: Lead not captured anywhere", {
+      sheetsOk, emailOk, hatchOk,
+    });
+    return res.status(500).json({
+      success: false,
+      error: "Unable to save your information. Please call us directly.",
+    });
+  }
+
   return res.status(200).json({
     success: true,
-    errors: errors.length > 0 ? errors : undefined,
+    warnings: {
+      sheetsOk,
+      emailOk,
+      hatchOk,
+    },
   });
 }

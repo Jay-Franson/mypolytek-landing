@@ -824,11 +824,17 @@
             <input type="text" id="zip" placeholder="00000" maxlength="5" autocomplete="postal-code">
           </div>
         </div>
+        <!-- Honeypot — hidden field for spam detection. Real users can't see this. -->
+        <div style="position:absolute;left:-9999px;top:-9999px;height:0;width:0;overflow:hidden;" aria-hidden="true">
+          <label for="website">Website (leave blank)</label>
+          <input type="text" id="website" name="website" tabindex="-1" autocomplete="off">
+        </div>
         <div class="form-nav" style="flex-direction:column;align-items:stretch;">
           <button class="btn-back" style="width:fit-content;" onclick="prevStep(3)">← Back</button>
           <button class="btn-submit" id="btn-submit" onclick="submitForm()">Claim My Savings →</button>
         </div>
-        <p class="form-disclaimer">By submitting, you consent to receive calls and texts from BAM Coatings at the number provided, including via automated technology. Consent is not a condition of purchase. Msg &amp; data rates may apply. Reply STOP to opt out.</p>
+        <p class="form-error" id="form-error" style="display:none;color:#dc2626;font-size:0.9rem;margin-top:10px;text-align:center;font-weight:600;"></p>
+        <p class="form-disclaimer">By submitting, you consent to receive calls and texts from Polytek of Rochester at the number provided, including via automated technology. Consent is not a condition of purchase. Msg &amp; data rates may apply. Reply STOP to opt out.</p>
       </div>
 
     </div><!-- /form-body -->
@@ -837,8 +843,8 @@
     <div class="thank-you" id="thank-you">
       <div class="ty-icon">🎉</div>
       <h3>You're All Set!</h3>
-      <p>We'll call you within <strong>15 minutes</strong> to confirm your savings. Watch for a call from <strong>507-252-8112</strong>.</p>
-      <p>Can't wait? Call us now: <a href="tel:5072528112">507-252-8112</a></p>
+      <p>We'll call you within <strong>15 minutes</strong> to confirm your savings. Watch for a call from <strong id="ty-hatch-phone">(507) 764-0389</strong>.</p>
+      <p>Can't wait? Call us now: <a id="ty-call-phone" href="tel:5072528112">(507) 252-8112</a></p>
     </div>
 
   </div><!-- /form-card -->
@@ -1047,40 +1053,80 @@
     });
   }
 
-  function submitForm() {
+  async function submitForm() {
     var fname = document.getElementById('fname').value.trim();
     var lname = document.getElementById('lname').value.trim();
     var phone = document.getElementById('phone').value.trim();
     var email = document.getElementById('email').value.trim();
     var zip   = document.getElementById('zip').value.trim();
+    var website = document.getElementById('website') ? document.getElementById('website').value : '';
+
+    var errorEl = document.getElementById('form-error');
+    var btn = document.getElementById('btn-submit');
+
+    // Hide any previous error
+    if (errorEl) { errorEl.style.display = 'none'; errorEl.textContent = ''; }
 
     if (!fname || !phone || !email || !zip) {
-      alert('Please fill in all required fields.');
+      if (errorEl) {
+        errorEl.textContent = 'Please fill in all required fields.';
+        errorEl.style.display = 'block';
+      }
       return;
     }
 
-    // Show thank you immediately — don't make the user wait on the API
-    showThankYou();
+    // Disable button + show loading state
+    var originalBtnText = btn.textContent;
+    btn.disabled = true;
+    btn.textContent = 'Submitting...';
+    btn.style.opacity = '0.7';
+    btn.style.cursor = 'wait';
 
-    // Fire-and-forget: send lead data to backend
-    fetch('/api/submit-lead', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({
-        fname: fname,
-        lname: lname,
-        phone: phone,
-        email: email,
-        zip:   zip,
-        step1: formData.step1,
-        step2: formData.step2,
-        step3: formData.step3,
-        integrations: window.integrations,
-      }),
-    }).catch(function(err) {
-      // Silent fail — lead is already shown thank-you screen
+    try {
+      var response = await fetch('/api/submit-lead', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          fname: fname,
+          lname: lname,
+          phone: phone,
+          email: email,
+          zip:   zip,
+          step1: formData.step1,
+          step2: formData.step2,
+          step3: formData.step3,
+          website: website, // honeypot field — bots fill this, real users don't
+        }),
+      });
+
+      var result = await response.json();
+
+      if (response.ok && result.success) {
+        showThankYou();
+      } else {
+        // Show error message with fallback phone
+        if (errorEl) {
+          errorEl.innerHTML = (result.error || 'Something went wrong. Please call us directly at ') +
+            ' <a href="tel:5072528112" style="color:#dc2626;text-decoration:underline;">(507) 252-8112</a>';
+          errorEl.style.display = 'block';
+        }
+        // Re-enable button
+        btn.disabled = false;
+        btn.textContent = originalBtnText;
+        btn.style.opacity = '';
+        btn.style.cursor = '';
+      }
+    } catch (err) {
       console.error('Lead submission error:', err);
-    });
+      if (errorEl) {
+        errorEl.innerHTML = 'Network error. Please call us at <a href="tel:5072528112" style="color:#dc2626;text-decoration:underline;">(507) 252-8112</a>';
+        errorEl.style.display = 'block';
+      }
+      btn.disabled = false;
+      btn.textContent = originalBtnText;
+      btn.style.opacity = '';
+      btn.style.cursor = '';
+    }
   }
 
   // Shake keyframe
@@ -1201,7 +1247,7 @@
     document.querySelector('#urgency .btn-primary').textContent = hero.cta;
 
     // Footer
-    document.querySelector('footer p:first-child').textContent = `${dealer.name} © 2025 &nbsp;·&nbsp; ${hero.regions.join(', ')}`;
+    document.querySelector('footer p:first-child').textContent = `${dealer.name} © 2025`;
     const footerPhone = document.querySelector('.footer-phone');
     footerPhone.href = `tel:${dealer.phone.replace(/\D/g, '')}`;
     footerPhone.textContent = dealer.phone;
@@ -1211,7 +1257,14 @@
     floatCall.href = `tel:${dealer.phone.replace(/\D/g, '')}`;
     floatCall.textContent = `📞 Call Now: ${dealer.phone}`;
 
-    // All phone links
+    // Thank-you Hatch callback number (separate from main "call us" number)
+    const tyHatchPhone = document.getElementById('ty-hatch-phone');
+    if (tyHatchPhone && dealer.hatchPhone) {
+      tyHatchPhone.textContent = dealer.hatchPhone;
+    }
+
+    // All phone links — point to main "call us" number (dealer.phone),
+    // EXCEPT the thank-you Hatch callback (ty-hatch-phone is a <strong>, not a link, so it's safe)
     document.querySelectorAll('a[href^="tel:"]').forEach(function(a) {
       a.href = `tel:${dealer.phone.replace(/\D/g, '')}`;
       if (!a.textContent.includes('📞')) {
@@ -1219,8 +1272,8 @@
       }
     });
 
-    // Store integration config for form submission
-    window.integrations = config.integrations || crm;
+    // NOTE: window.integrations intentionally removed — integration config is
+    // now server-owned in api/submit-lead.js, never trusted from client.
   }
 </script>
 </body>
