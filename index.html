@@ -39,6 +39,39 @@
     overflow-x: hidden;
   }
 
+  /* ─── BRAND HEADER (Polytek logo) ─── */
+  #brand-header {
+    background: var(--white);
+    padding: 14px 16px;
+    text-align: center;
+    border-bottom: 1px solid #e8ecf2;
+  }
+  #brand-header .brand-logo {
+    height: 44px;
+    width: auto;
+    display: inline-block;
+    vertical-align: middle;
+  }
+  @media (max-width: 600px) {
+    #brand-header { padding: 10px 12px; }
+    #brand-header .brand-logo { height: 36px; }
+  }
+
+  /* ─── WARRANTY SEAL (hero) ─── */
+  .warranty-seal {
+    margin-top: 28px;
+    display: inline-block;
+    filter: drop-shadow(0 6px 18px rgba(0,0,0,0.35));
+  }
+  .warranty-seal img {
+    height: 130px;
+    width: auto;
+    display: block;
+  }
+  @media (max-width: 600px) {
+    .warranty-seal img { height: 100px; }
+  }
+
   /* ─── STICKY TOP BAR ─── */
   #topbar {
     background: var(--navy);
@@ -538,9 +571,9 @@
     align-items: center;
     justify-content: center;
     text-align: center;
-    background: linear-gradient(135deg, var(--navy) 0%, var(--navy-mid) 100%);
+    background: linear-gradient(135deg, var(--orange) 0%, #e05e00 100%);
     color: var(--white);
-    border: 3px dashed var(--orange);
+    border: 3px dashed var(--white);
     text-decoration: none;
     padding: 16px;
     transition: transform 0.25s ease, box-shadow 0.25s ease;
@@ -548,25 +581,27 @@
   }
   .gallery-cta:hover {
     transform: translateY(-4px);
-    box-shadow: 0 12px 32px rgba(255,107,0,0.35);
+    box-shadow: 0 12px 32px rgba(255,107,0,0.45);
   }
   .gallery-cta .cta-q {
-    font-size: clamp(2.5rem, 6vw, 4rem);
+    font-size: clamp(2.8rem, 6vw, 4.4rem);
     font-weight: 900;
-    color: var(--orange);
+    color: var(--navy);
     line-height: 1;
     margin-bottom: 8px;
+    text-shadow: 0 2px 8px rgba(0,0,0,0.15);
   }
   .gallery-cta .cta-text {
     font-size: clamp(1rem, 2vw, 1.25rem);
-    font-weight: 800;
+    font-weight: 900;
     color: var(--white);
     letter-spacing: 0.02em;
+    text-shadow: 0 1px 4px rgba(0,0,0,0.2);
   }
   .gallery-cta .cta-sub {
     font-size: 0.85rem;
-    font-weight: 600;
-    color: var(--orange);
+    font-weight: 700;
+    color: var(--navy);
     margin-top: 6px;
   }
 
@@ -719,6 +754,13 @@
 </head>
 <body>
 
+<!-- BRAND HEADER -->
+<div id="brand-header">
+  <a href="https://mypolytek.com" target="_blank" rel="noopener" aria-label="Polytek of Rochester home">
+    <img src="/images/brand/polytek-logo.png" alt="Polytek of Rochester" class="brand-logo">
+  </a>
+</div>
+
 <!-- STICKY TOP BAR -->
 <div id="topbar">⚡ <span id="topbar-text">Limited Time Offer</span> &nbsp;·&nbsp; Call <a id="topbar-phone-link" href="tel:" style="color:var(--orange);text-decoration:none;font-weight:800;"></a></div>
 
@@ -733,6 +775,9 @@
       <span class="trust-badge"><span class="check">✓</span> Lifetime Warranty</span>
       <span class="trust-badge"><span class="check">✓</span> 1-Day Install</span>
       <span class="trust-badge"><span class="check">✓</span> Licensed &amp; Insured</span>
+    </div>
+    <div class="warranty-seal">
+      <img src="/images/brand/warranty-limited.png" alt="Limited Lifetime Warranty — Satisfaction Guaranteed">
     </div>
   </div>
 </section>
