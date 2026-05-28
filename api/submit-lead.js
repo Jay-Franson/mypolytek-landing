@@ -120,15 +120,31 @@ This email was sent automatically from your landing page form.
   }
 }
 
-async function createHatchContact(fname, lname, phone, email, zip, source) {
+async function createHatchContact({ fname, lname, phone, email, zip, step1, step2, step3, source }) {
   try {
+    // Hatch's POST /v1/contacts schema:
+    //   Required: externalId, phoneNumber, source
+    //   Standard: email, firstName, lastName, status
+    //   Custom: anything inside `details` (imported as strings)
+    // Phone field name is `phoneNumber` (NOT `phone`). Zip is not a
+    // standard field — it goes in `details`.
+    const externalId = `polytek-lp-${Date.now()}-${Math.random().toString(36).slice(2, 8)}`;
+
     const contactBody = {
+      externalId,
+      phoneNumber: phone,
+      email,
       firstName: fname,
       lastName: lname || "",
-      phone,
-      email,
-      zip,
       source,
+      details: {
+        zip: zip || "",
+        projectType: step1 || "",
+        timeline: step2 || "",
+        homeowner: step3 || "",
+        landingPage: "powrfulwebsite.com",
+        submittedAt: new Date().toISOString(),
+      },
     };
 
     const hatchRes = await fetch(`${HATCH_BASE}/contacts`, {
@@ -309,10 +325,17 @@ export default async function handler(req, res) {
   // ─────────────────────────────────────────────────────────
   let hatchOk = false;
   if (process.env.HATCH_API_KEY) {
-    hatchOk = await createHatchContact(
-      fname, lname, phone, email, zip,
-      DEALER_CONFIG.hatch.source
-    );
+    hatchOk = await createHatchContact({
+      fname,
+      lname,
+      phone,
+      email,
+      zip,
+      step1,
+      step2,
+      step3,
+      source: DEALER_CONFIG.hatch.source,
+    });
   } else {
     console.error("HATCH_API_KEY not set");
   }
