@@ -531,6 +531,45 @@
   }
   .gallery-item:hover img { transform: scale(1.07); }
 
+  /* "Your Garage Here" CTA tile in the gallery */
+  .gallery-cta {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+    background: linear-gradient(135deg, var(--navy) 0%, var(--navy-mid) 100%);
+    color: var(--white);
+    border: 3px dashed var(--orange);
+    text-decoration: none;
+    padding: 16px;
+    transition: transform 0.25s ease, box-shadow 0.25s ease;
+    cursor: pointer;
+  }
+  .gallery-cta:hover {
+    transform: translateY(-4px);
+    box-shadow: 0 12px 32px rgba(255,107,0,0.35);
+  }
+  .gallery-cta .cta-q {
+    font-size: clamp(2.5rem, 6vw, 4rem);
+    font-weight: 900;
+    color: var(--orange);
+    line-height: 1;
+    margin-bottom: 8px;
+  }
+  .gallery-cta .cta-text {
+    font-size: clamp(1rem, 2vw, 1.25rem);
+    font-weight: 800;
+    color: var(--white);
+    letter-spacing: 0.02em;
+  }
+  .gallery-cta .cta-sub {
+    font-size: 0.85rem;
+    font-weight: 600;
+    color: var(--orange);
+    margin-top: 6px;
+  }
+
   /* ─── TESTIMONIALS ─── */
   #testimonials { background: var(--white); text-align: center; }
   .testimonial-grid {
@@ -1233,6 +1272,19 @@
       div.innerHTML = `<img src="${item.src}" alt="${item.alt}" loading="lazy">`;
       galleryGrid.appendChild(div);
     });
+    // Append "Your Garage Here" CTA tile to complete the 3x3 grid
+    if (gallery && gallery.length > 0) {
+      const cta = document.createElement('a');
+      cta.className = 'gallery-item gallery-cta';
+      cta.href = '#quote';
+      cta.setAttribute('aria-label', 'Get a quote for your garage');
+      cta.innerHTML = `
+        <div class="cta-q">?</div>
+        <div class="cta-text">Your Garage Here</div>
+        <div class="cta-sub">Get Your Free Quote →</div>
+      `;
+      galleryGrid.appendChild(cta);
+    }
 
     // Testimonials
     if (testimonials && testimonials.length > 0) {
