@@ -4,6 +4,23 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title id="page-title">Landing Page</title>
+<!-- Meta Pixel (Polytek dataset: Powrful/MyPolytek) -->
+<script>
+!function(f,b,e,v,n,t,s)
+{if(f.fbq)return;n=f.fbq=function(){n.callMethod?
+n.callMethod.apply(n,arguments):n.queue.push(arguments)};
+if(!f._fbq)f._fbq=n;n.push=n;n.loaded=!0;n.version='2.0';
+n.queue=[];t=b.createElement(e);t.async=!0;
+t.src=v;s=b.getElementsByTagName(e)[0];
+s.parentNode.insertBefore(t,s)}(window, document,'script',
+'https://connect.facebook.net/en_US/fbevents.js');
+fbq('init', '422998563057233');
+fbq('track', 'PageView');
+</script>
+<noscript><img height="1" width="1" style="display:none"
+src="https://www.facebook.com/tr?id=422998563057233&ev=PageView&noscript=1"
+/></noscript>
+<!-- End Meta Pixel -->
 <!-- Favicon (Polytek P mark, cropped from logo) -->
 <link rel="icon" href="/favicon.ico" sizes="any">
 <link rel="icon" type="image/png" sizes="16x16" href="/images/brand/favicon-16.png">
@@ -1186,6 +1203,14 @@
 
       if (response.ok && result.success) {
         showThankYou();
+        // Meta Pixel — Lead conversion event. Tells the algorithm this
+        // visitor converted, so it can find more people like them.
+        if (typeof fbq !== 'undefined') {
+          fbq('track', 'Lead', {
+            content_name: 'Quote Request',
+            content_category: formData.step1 || 'General',
+          });
+        }
       } else {
         // Show error message with fallback phone
         if (errorEl) {
