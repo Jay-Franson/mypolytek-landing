@@ -1,7 +1,6 @@
 {
   "buildCommand": "npm run validate",
   "outputDirectory": ".",
-  "public": true,
   "headers": [
     {
       "source": "/(.*)",
