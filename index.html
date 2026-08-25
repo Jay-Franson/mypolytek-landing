@@ -464,6 +464,28 @@ src="https://www.facebook.com/tr?id=422998563057233&ev=PageView&noscript=1"
     padding: 0 4px;
   }
 
+  .consent-check {
+    display: flex;
+    gap: 10px;
+    align-items: flex-start;
+    font-size: 0.72rem;
+    color: var(--gray-500);
+    text-align: left;
+    margin-top: 16px;
+    line-height: 1.5;
+    padding: 0 4px;
+    cursor: pointer;
+  }
+  .consent-check input[type="checkbox"] {
+    flex: 0 0 auto;
+    width: 16px;
+    height: 16px;
+    margin-top: 2px;
+    accent-color: var(--orange);
+    cursor: pointer;
+  }
+  .consent-check a { color: var(--gray-500); text-decoration: underline; }
+
   /* Thank you state */
   .thank-you {
     display: none;
@@ -947,7 +969,7 @@ src="https://www.facebook.com/tr?id=422998563057233&ev=PageView&noscript=1"
           <button class="btn-submit" id="btn-submit" onclick="submitForm()">Claim My Savings →</button>
         </div>
         <p class="form-error" id="form-error" style="display:none;color:#dc2626;font-size:0.9rem;margin-top:10px;text-align:center;font-weight:600;"></p>
-        <p class="form-disclaimer">By submitting, you consent to receive calls and text messages from Polytek of Rochester at the number provided about your quote request and related offers, including via automated technology. Consent is not a condition of purchase. Msg &amp; data rates may apply. Msg frequency varies. Reply STOP to opt out, HELP for help. See our <a href="/privacy" target="_blank" rel="noopener">Privacy Policy</a> and <a href="/terms" target="_blank" rel="noopener">Terms of Service</a>.</p>
+        <label class="consent-check"><input type="checkbox" id="sms-consent"><span>By checking this box and submitting, I consent to receive calls and automated text messages from Polytek of Rochester at the number provided about my quote request and related offers. Consent is not a condition of purchase. Msg &amp; data rates may apply. Msg frequency varies. Reply STOP to opt out, HELP for help. See our <a href="/privacy" target="_blank" rel="noopener">Privacy Policy</a> and <a href="/terms" target="_blank" rel="noopener">Terms of Service</a>.</span></label>
       </div>
 
     </div><!-- /form-body -->
@@ -1174,6 +1196,16 @@ src="https://www.facebook.com/tr?id=422998563057233&ev=PageView&noscript=1"
       return;
     }
 
+    // TCPA/A2P: consent checkbox must be actively selected — never pre-checked
+    var consentEl = document.getElementById('sms-consent');
+    if (!consentEl || !consentEl.checked) {
+      if (errorEl) {
+        errorEl.textContent = 'Please check the consent box above to continue.';
+        errorEl.style.display = 'block';
+      }
+      return;
+    }
+
     // Disable button + show loading state
     var originalBtnText = btn.textContent;
     btn.disabled = true;
@@ -1196,6 +1228,8 @@ src="https://www.facebook.com/tr?id=422998563057233&ev=PageView&noscript=1"
           step3: formData.step3,
           website: website, // honeypot field — bots fill this, real users don't
           turnstileToken: turnstileToken, // Cloudflare bot verification token
+          smsConsent: true, // gated above: checkbox actively selected by the user
+          smsConsentAt: new Date().toISOString(), // consent timestamp (stored with source per A2P registration)
         }),
       });
 
